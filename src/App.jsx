@@ -23,43 +23,49 @@ function App() {
     }
     setGrid(joinedSudoku);
     setInitialiseGrid(true);
+    setSolution(joinedSudoku);
   }
 
   function solveSudoku() {
     setSolution(grid);
     setInitialiseSolution(true);
     let solution = [...grid];
-    let zeroIndeces = solution.map((number, index) => {
-      if (number == 0) {
-        return index;
+    let zeroIndices = solution.reduce((indices, number, index) => {
+      if (number === 0) {
+        indices.push(index);
       }
-    });
-    for (let i = 0; i < zeroIndeces.length; i++) {
-      let currentIndex = zeroIndeces[i];
+      return indices;
+    }, []);
+
+    let currentIndex = 0;
+    while (currentIndex >= 0 && currentIndex < zeroIndices.length) {
       let possibleNumbers = [];
       for (let j = 1; j < 10; j++) {
-        if (j > solution[currentIndex]) {
+        if (j > solution[zeroIndices[currentIndex]]) {
           possibleNumbers.push(j);
         }
       }
-      for (let j = 0; j < possibleNumbers.length; j++) {
-        if (isValidValue(possibleNumbers[j], currentIndex)) {
-          console.log("hello");
-          solution[currentIndex] = possibleNumbers[j];
+      let foundValidNumber = false;
+      for (let k = 0; k < possibleNumbers.length; k++) {
+        if (
+          isValidValue(possibleNumbers[k], zeroIndices[currentIndex], solution)
+        ) {
+          solution[zeroIndices[currentIndex]] = possibleNumbers[k];
+          setSolution(solution);
+          foundValidNumber = true;
           break;
         }
-        if (j == possibleNumbers.length - 1) {
-          console.log("goodbye");
-          solution[currentIndex] = 0;
-          i--;
-        }
       }
-
-      setSolution(solution);
+      if (!foundValidNumber) {
+        solution[zeroIndices[currentIndex]] = 0;
+        currentIndex--;
+      } else {
+        currentIndex++;
+      }
     }
   }
 
-  function isValidValue(number, index) {
+  function isValidValue(number, index, currentSolution) {
     const row1 = [0, 1, 2, 3, 4, 5, 6, 7, 8];
     const row2 = row1.map((index) => index + 9);
     const row3 = row2.map((index) => index + 9);
@@ -131,22 +137,21 @@ function App() {
       }
     }
 
-    console.log(index, number, indecesToCheck);
-
     for (let array of indecesToCheck) {
       for (let indexToCheck of array) {
-        if (grid[indexToCheck] == number) {
+        if (currentSolution[indexToCheck] == number) {
           return false;
         }
       }
     }
-
     return true;
   }
 
   return (
     <div className="text-center">
-      <p className="text-sky-400/100">Sudoku Solver</p>
+      <p className="text-sky-400/100 text-2xl font-bold p-1 m-2">
+        Sudoku Solver
+      </p>
       <button
         onClick={getSudoku}
         className="border rounded-md border-black p-1 m-2"
