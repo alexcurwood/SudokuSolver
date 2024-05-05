@@ -51,7 +51,7 @@ function App() {
           isValidValue(possibleNumbers[k], zeroIndices[currentIndex], solution)
         ) {
           solution[zeroIndices[currentIndex]] = possibleNumbers[k];
-          setSolution(solution);
+          setSolution([...solution]);
           foundValidNumber = true;
           break;
         }
@@ -175,7 +175,7 @@ function App() {
             <p>Solves the Sudoku using a brute force algorithm</p>
           )}
           {initialiseSolution && (
-            <div>
+            <div className="py-10">
               <div className="flex justify-center m-50">
                 <Grid numbers={solution} />
               </div>
