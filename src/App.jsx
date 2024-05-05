@@ -4,7 +4,9 @@ import Grid from "./grid";
 
 function App() {
   const [grid, setGrid] = useState([]);
+  const [solution, setSolution] = useState([]);
   const [initialiseGrid, setInitialiseGrid] = useState(false);
+  const [initialiseSolution, setInitialiseSolution] = useState(false);
 
   async function getSudoku() {
     const response = await fetch(
@@ -12,8 +14,48 @@ function App() {
     );
     const json = await response.json();
     const sudoku = json.newboard.grids[0].value;
-    setGrid(sudoku);
+    const joinedSudoku = [];
+    for (let i = 0; i < 9; i++) {
+      let row = sudoku[i];
+      for (let j = 0; j < 9; j++) {
+        joinedSudoku.push(row[j]);
+      }
+    }
+    setGrid(joinedSudoku);
     setInitialiseGrid(true);
+  }
+
+  function solveSudoku() {
+    setSolution(grid);
+    setInitialiseSolution(true);
+    let solution = [...grid];
+    let zeroIndeces = solution.map((number, index) => {
+      if (number == 0) {
+        return index;
+      }
+    });
+    for (let i = 0; i < zeroIndeces.length; i++) {
+      let currentIndex = zeroIndeces[i];
+      let possibleNumbers = [];
+      for (let j = 1; j < 10; j++) {
+        if (j > solution[currentIndex]) {
+          possibleNumbers.push(j);
+        }
+      }
+      for (let j = 0; j < possibleNumbers.length; j++) {
+        if (isValidValue(possibleNumbers[j])) {
+          solution[currentIndex] = possibleNumbers[j];
+          break;
+        }
+        solution[currentIndex] = 0;
+        i--;
+      }
+      solution[currentIndex] = 1;
+      // loop through possible numbers
+      // set to the lowest one using checker
+      // if no possible numbers set back to zero and set i--
+      setSolution(solution);
+    }
   }
 
   return (
@@ -25,9 +67,25 @@ function App() {
       >
         Generate Sudoku
       </button>
-      <div className="flex justify-center m-50">
-        {initialiseGrid && <Grid numbers={grid} />}
-      </div>
+      {initialiseGrid && (
+        <>
+          <div className="flex justify-center m-50">
+            <Grid numbers={grid} />
+          </div>
+
+          <button
+            onClick={solveSudoku}
+            className="border rounded-md border-black p-1 m-2"
+          >
+            Solve Sodoku
+          </button>
+          {initialiseSolution && (
+            <div className="flex justify-center m-50">
+              <Grid numbers={solution} />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
