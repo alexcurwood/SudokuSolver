@@ -158,6 +158,7 @@ function App() {
       >
         Generate Sudoku
       </button>
+      {!initialiseGrid && <p>Retrieves a soduku from the Dosuku API</p>}
       {initialiseGrid && (
         <>
           <div className="flex justify-center m-50">
@@ -170,6 +171,9 @@ function App() {
           >
             Solve Sodoku
           </button>
+          {!initialiseSolution && (
+            <p>Solves the Sudoku using a brute force algorithm</p>
+          )}
           {initialiseSolution && (
             <div className="flex justify-center m-50">
               <Grid numbers={solution} />
